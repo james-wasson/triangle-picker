@@ -1,0 +1,27 @@
+{
+  "name": "triangle-picker",
+  "version": "1.0.0",
+  "description": "A JQuery plugin to make a triangle picker",
+  "main": "picker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/james-wasson/triangle-picker.git"
+  },
+  "keywords": [
+    "javascript",
+    "jquery",
+    "trianglePicker",
+    "triangle-picker",
+    "picker",
+    "plugin"
+  ],
+  "author": "James Adam Wasson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/james-wasson/triangle-picker/issues"
+  },
+  "homepage": "https://github.com/james-wasson/triangle-picker#readme"
+}
