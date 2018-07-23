@@ -1,0 +1,37 @@
+.triangle-picker-wrapper {
+    position: relative !important;
+}
+
+.triangle-picker-wrapper .triangle-picker {
+    width: calc(100% - 40px);
+    position: relative !important;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.triangle-picker-wrapper .triangle-picker .triangle-picker-handle {
+    position: absolute !important;
+    width: 1.5vw;
+    height: 1.5vw;
+    background-color: black;
+    border-radius: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.triangle-picker-wrapper .triangle-picker-top-label-wrapper,
+.triangle-picker-wrapper .triangle-picker-bottom-label-wrapper {
+    width: 100%;
+    text-align: center;
+    position: relative;
+}
+
+.triangle-picker-wrapper .triangle-picker-bottom-label-wrapper .bottomLeft {
+    position: absolute;
+    left: 0;
+}
+
+.triangle-picker-wrapper .triangle-picker-bottom-label-wrapper .bottomRight {
+    position: absolute;
+    right: 0;
+}
