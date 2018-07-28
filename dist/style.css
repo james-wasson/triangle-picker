@@ -3,10 +3,9 @@
 }
 
 .triangle-picker-wrapper .triangle-picker {
-    width: calc(100% - 40px);
+    width: 100%;
     position: relative !important;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0;
 }
 
 .triangle-picker-wrapper .triangle-picker .triangle-picker-handle {

@@ -20,7 +20,7 @@
             }
         },
         handle: {
-            color: null,
+            color: 'yellow',
             width: null,
             height: null,
             borderRadius: null
@@ -44,52 +44,12 @@
             decimalPlaces: 2
         }
     };
-    var publicMethods = ['moveHandleToCenter', 'onWindowResize', 'onSvgMouseDown', 'onHandleMouseDown', 'onMouseUp', 'onMouseMove', 'onHandleMove', 'redrawTriangle', 'bindOnChange', 'onChange', 'handleValues', 'handlePosition', 'handleDimensions', 'svgDimensions', 'svgOffset', 'svgPosition', 'destroy', 'teardown', 'unbind'];
+    var publicMethods = ['moveHandleToCenter', 'onWindowResize', 'onSvgMouseDown', 'onHandleMouseDown', 'onMouseUp', 'onMouseMove', 'onHandleMove', 'redrawTriangle', 'bindOnChange', 'onChange', 'currentValues', 'handlePosition', 'handleDimensions', 'svgDimensions', 'svgOffset', 'svgPosition', 'destroy', 'teardown', 'unbind'];
 
-
-
-    function PluginMaker(plugin, pluginName, publicMethods) {
-        if (!Array.isArray(publicMethods))
-            publicMethods = null;
-        (function(plugin, pluginName, publicMethods) {
-            // add the plugin function as a jQuery plugin
-            $.fn[pluginName] = function(options) {
-                // get the arguments 
-                var args = $.makeArray(arguments),
-                    after = args.slice(1);
-                var instance;
-                return this.each(function() {
-                    // see if we have an instance
-                    instance = $.data(this, pluginName);
-                    if (instance !== undefined) {
-                        // call a method on the instance
-                        if (typeof options === "string") {
-                            // checks if it is a public method
-                            if (publicMethods !== null) {
-                                if (!publicMethods.includes(options)) {
-                                    console.warn('Method is not public');
-                                    return;
-                                }
-                            }
-                            instance[options].apply(instance, after);
-                        } else if (typeof instance.update === 'function') {
-                            // call update on the instance
-                            instance.update.apply(instance, args);
-                        }
-                    } else {
-                        // create the plugin
-                        instance = new plugin(this);
-                        // initalizes the plugin
-                        if (typeof instance.init === 'function')
-                            instance.init.apply(instance, args);
-                    }
-                });
-            };
-        }(plugin, pluginName, publicMethods));
-    }
-
-    function trianglePicker(el) {
-        this.element = $(el);
+    function trianglePicker(el, options, onChange) {
+        if (typeof el !== undefined) {
+            this.init(el, options, onChange);
+        }
     }
 
     $.extend(trianglePicker.prototype, 
@@ -102,9 +62,13 @@
         inputBoxes: [],
         centerLines: [],
         mouseIsDown: false,
-        init: function(options, onChange) {
-            // init the element
-            $.data(this.element, pluginName, this); // add the element to the widgit
+        element: null,
+        init: function(el, options, onChange) {
+
+            this.element = el;
+
+            // add the element to the widgit
+            $.data(this.element, pluginName, this);
             
             this.currentValues = null;
             this.options = setUpOptions(options, this);
@@ -120,14 +84,16 @@
 
             this.moveHandleToCenter();
 
+            this.onHandleMove();
+
             this.onWindowResize();
         },
         bind: function() {
             $window.bind("resize", $.proxy(this.onWindowResize, this));
-            this.handle.on("mousedown", $.proxy(this.onHandleMouseDown, this));
-            this.svg.on("mousedown", $.proxy(this.onSvgMouseDown, this));
-            $document.on("mousemove", $.proxy(this.onMouseMove, this));
-            $document.on("mouseup", $.proxy(this.onMouseUp, this));
+            this.handle.bind("mousedown", $.proxy(this.onHandleMouseDown, this));
+            this.svg.bind("mousedown", $.proxy(this.onSvgMouseDown, this));
+            $document.bind("mousemove", $.proxy(this.onMouseMove, this));
+            $document.bind("mouseup", $.proxy(this.onMouseUp, this));
         },
 
         /**** Move methods ****/
@@ -188,7 +154,6 @@
         onWindowResize: function(e) {
             this.redrawTriangle();
             this.handleResize();
-            this.handlePosition(true);
         },
 
         redrawTriangle: function() {
@@ -196,7 +161,6 @@
             redrawTriangle(this);
             this.svgPosition(true);
             this.svgOffset(true);
-            this.svgDimensions(true);
         },
 
         handleResize: function () {
@@ -213,6 +177,7 @@
                 else
                     moveToPolygonCenter(this.handle, this.handleDimensions(), this.svgDimensions());
             }
+            this.handlePosition(true);
         },
 
         /**** End Resize methods ****/
@@ -245,14 +210,6 @@
             topMiddle: 33.33,
             bottomLeft: 33.33,
         },
-        handleValues: function(values) {
-            if (values === undefined)
-                return this.currentValues;
-            this.currentValues = values;
-            // TODO: move the handle to the correct value
-            // TODO: set the input values
-            return this;
-        },
 
         /**** End Get And Set Values ****/
 
@@ -265,9 +222,13 @@
                     this.handlePosition(true); // init the value if its not already
                 return this._handlePosition;
             }
-            if (value !== undefined)
-                this.handle.css({ top: value.y - handleDimensions.height / 2, left: value.x - handleDimensions.width / 2 });
-            this._handlePosition = this.handle.position();
+            if (value !== undefined) {
+                var updates = { top: value.top - this.handleDimensions().height / 2, left: value.left - this.handleDimensions().width / 2 };
+                this.handle.css(updates);
+                this.onHandleMove();
+            } else {
+                this._handlePosition = this.handle.position();
+            }
             return this;
         },
 
@@ -279,23 +240,37 @@
                 return this._handleDimensions;
             }
             if (value !== undefined) {
-                this.handle.css({ height: value.height, width: value.width });
+                var updates = { height: value.height, width: value.width };
+                this.handle.css(updates);
+                this._handleDimensions = updates;
+                this.handleResize();
+            } else {
+                this._handleDimensions = getElementDimensions(this.handle, 'outer');
             }
-            this._handleDimensions = getElementDimensions(this.handle, 'outer');
             return this;
         },
 
         _svgDimensions: null,
-        svgDimensions: function(set, value) {
+        svgDimensions: function(set, value, dontCallResize) {
             if (set !== true) {
                 if (this._svgDimensions === null)
                     this.svgDimensions(true); // init the value if its not already
                 return this._svgDimensions;
             }
             if (value !== undefined) {
-                this.svg.attr('height', value.height);
-                this.svg.attr('width', value.width);
-                this._svgDimensions = $.extend({}, value);
+                if (!dontCallResize) {
+                    if (value.width)
+                        this.options.polygon.width = value.width;
+                    else if (value.height) 
+                        this.options.polygon.width = value.height * 2 / Math.sqrt(3);
+                    else
+                        return;
+                    this.onWindowResize();
+                } else {
+                    this.svg.attr('height', value.height);
+                    this.svg.attr('width', value.width);
+                    this._svgDimensions = { width: value.width, height: value.height };
+                }
             } else {
                 this._svgDimensions = getElementDimensions(this.svg, 'attr');
             }
@@ -369,14 +344,48 @@
             $.removeData(this.element[0], this.pluginName);
             this.element.removeClass(this.pluginName);
             this.unbind();
-            this.element = null;
+            for(var key in trianglePicker.prototype) {
+                this[key] = null;
+            }
         },
-        unbind: function() {  
+        unbind: function() {
+            this.handle.unbind("mousedown", this.onHandleMouseDown, this);
+            this.svg.unbind("mousedown", this.onSvgMouseDown, this);
+            $document.unbind("mousemove", this.onMouseMove, this);
+            $document.unbind("mouseup", this.onMouseUp, this);
             $window.unbind("resize", this.onWindowResize);
         }
     });
 
-    PluginMaker(trianglePicker, pluginName, publicMethods);
+    $.fn[pluginName] = function(options, onChange) {
+        // get the arguments 
+        var args = $.makeArray(arguments),
+            after = args.slice(1);
+        var instance;
+        return this.each(function() {
+            // see if we have an instance
+            instance = $.data(this, pluginName);
+            if (instance !== undefined) {
+                // call a method on the instance
+                if (typeof options === "string") {
+                    // checks if it is a public method
+                    if (publicMethods !== null) {
+                        if (!publicMethods.includes(options)) {
+                            console.warn('Method is not public');
+                            return;
+                        }
+                    }
+                    instance[options].apply(instance, after);
+                } else if (typeof instance.update === 'function') {
+                    // call update on the instance
+                    instance.update.apply(instance, args);
+                }
+            } else {
+                // create the plugin
+                new plugin(this, options, onChange);
+            }
+        });
+    };
 
     function setUpPicker(plugin, options) {
         plugin.element.empty();
@@ -405,7 +414,7 @@
             class: pickerPolygonClass
         }, plugin.picker[0]));
 
-        plugin.svgDimensions(true, { width: width, height: height }); // equilateral triangle's height
+        plugin.svgDimensions(true, { width: width, height: height }, true); // equilateral triangle's height
 
         plugin.pickerPoints(true);
 
@@ -486,7 +495,7 @@
     function redrawTriangle(plugin) {
         var width = plugin.options.polygon.width || plugin.picker.outerWidth();
         var height = width*(Math.sqrt(3)/2) - plugin.options.polygon.line.width; // equilateral triangle's height
-        plugin.svgDimensions(true, { height: height, width: width });
+        plugin.svgDimensions(true, { height: height, width: width }, true);
         plugin.pickerPoints(true);
         plugin.polygon.attr('points', mapPointsToString([
             plugin.pickerPoints().bottomLeft,
