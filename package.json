@@ -1,6 +1,6 @@
 {
   "name": "triangle-picker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A JQuery plugin to make a triangle picker",
   "main": "picker.js",
   "scripts": {
