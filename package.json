@@ -4,7 +4,9 @@
   "description": "A JQuery plugin to make a triangle picker",
   "main": "picker.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:client": "webpack-dev-server --config webpack.config.js",
+    "start:server": "nodemon server/index.js",
+    "start:dev": "concurrently \"npm run start:server\" \"npm run start:client\""
   },
   "repository": {
     "type": "git",
@@ -23,5 +25,25 @@
   "bugs": {
     "url": "https://github.com/james-wasson/triangle-picker/issues"
   },
-  "homepage": "https://github.com/james-wasson/triangle-picker#readme"
+  "homepage": "https://github.com/james-wasson/triangle-picker#readme",
+  "devDependencies": {
+    "concurrently": "^3.6.1",
+    "css-loader": "^1.0.0",
+    "express": "^4.16.3",
+    "jquery": "^3.3.1",
+    "node-sass": "^4.9.2",
+    "nodemon": "^1.18.3",
+    "path": "^0.12.7",
+    "sass-loader": "^7.0.3",
+    "style-loader": "^0.21.0",
+    "vue": "^2.5.16",
+    "webpack": "^4.16.3",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5"
+  },
+  "nodemonConfig": {
+    "watch": ["tests/", "server/", "dist/"],
+    "ignore": [],
+    "ext": "js,html,css"
+  }
 }
