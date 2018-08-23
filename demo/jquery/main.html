@@ -1,10 +1,9 @@
 <html>
-    <script type="text/javascript" src="/import/jquery/dist/jquery.js"></script>
-    <script type="text/javascript" src="http://localhost:9000/picker.js"></script>
-    <link rel="stylesheet" type="text/css" href="/dist/style.css" />
+    <script type="text/javascript" src="http://localhost:9000/node_modules/jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="http://localhost:9000/dist/picker.bundle.js"></script>
     <script type="text/javascript">
         $().ready(function() {
-            console.log($('#picker').trianglePicker)
+            
             $('#picker').trianglePicker(null, function(name, values) {
                 console.log(values)
             });
