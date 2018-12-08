@@ -70,7 +70,11 @@
             // add the element to the widgit
             $.data(this.element, pluginName, this);
             
-            this.currentValues = null;
+            this.currentValues = options.currentValues || {
+                  bottomRight: 33.33,
+                  topMiddle: 33.33,
+                  bottomLeft: 33.33,
+              };
             this.options = setUpOptions(options, this);
 
             this.name = this.options.name || this.element.attr('name') || this.element.attr('id') || 'trianglePicker';
@@ -82,7 +86,7 @@
             if (onChange !== undefined)
                 this.bindOnChange(onChange);
 
-            this.moveHandleToCenter();
+            this.moveHandleToCurrentValues();
 
             this.onHandleMove();
 
@@ -98,6 +102,23 @@
 
         /**** Move methods ****/
 
+        moveHandleToCurrentValues: function() {
+          console.log(this.pickerPoints().bottomLeft);
+          console.log(this.pickerPoints().topMiddle);
+          console.log(this.pickerPoints().bottomRight);
+            coord = { x: this.pickerPoints().bottomLeft.x * this.currentValues.bottomLeft/100 +
+              this.pickerPoints().topMiddle.x * this.currentValues.topMiddle/100 + 
+              this.pickerPoints().bottomRight.x * this.currentValues.bottomRight/100, 
+                      y: this.pickerPoints().bottomLeft.y * this.currentValues.bottomLeft/100 +
+              this.pickerPoints().topMiddle.y * this.currentValues.topMiddle/100 + 
+              this.pickerPoints().bottomRight.y * this.currentValues.bottomRight/100}; 
+              console.log(this.currentValues);
+              console.log(coord);
+            
+            moveEleToPoint(this.handle, coord, this.handleDimensions());
+            this.positionPercent(true);
+        },
+        
         moveHandleToCenter: function() {
             moveEleToPoint(this.handle, this.pickerPoints().midPoint, this.handleDimensions());
             this.positionPercent(true);
@@ -202,16 +223,6 @@
         },
 
         /**** End Change Methods ****/
-
-        /**** Get And Set Values ****/
-
-        currentValues: {
-            bottomRight: 33.33,
-            topMiddle: 33.33,
-            bottomLeft: 33.33,
-        },
-
-        /**** End Get And Set Values ****/
 
         /**** Get and set Position/Offest/Dimension Properties ****/
 
