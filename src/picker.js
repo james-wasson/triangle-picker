@@ -69,13 +69,14 @@
 
             // add the element to the widgit
             $.data(this.element, pluginName, this);
+
+            this.options = setUpOptions(options, this);
             
-            this.currentValues = options.currentValues || {
+            this.currentValues = this.options.currentValues || {
                   bottomRight: 33.33,
                   topMiddle: 33.33,
                   bottomLeft: 33.33,
               };
-            this.options = setUpOptions(options, this);
 
             this.name = this.options.name || this.element.attr('name') || this.element.attr('id') || 'trianglePicker';
 
@@ -103,17 +104,12 @@
         /**** Move methods ****/
 
         moveHandleToCurrentValues: function() {
-          console.log(this.pickerPoints().bottomLeft);
-          console.log(this.pickerPoints().topMiddle);
-          console.log(this.pickerPoints().bottomRight);
             coord = { x: this.pickerPoints().bottomLeft.x * this.currentValues.bottomLeft/100 +
               this.pickerPoints().topMiddle.x * this.currentValues.topMiddle/100 + 
               this.pickerPoints().bottomRight.x * this.currentValues.bottomRight/100, 
                       y: this.pickerPoints().bottomLeft.y * this.currentValues.bottomLeft/100 +
               this.pickerPoints().topMiddle.y * this.currentValues.topMiddle/100 + 
               this.pickerPoints().bottomRight.y * this.currentValues.bottomRight/100}; 
-              console.log(this.currentValues);
-              console.log(coord);
             
             moveEleToPoint(this.handle, coord, this.handleDimensions());
             this.positionPercent(true);
