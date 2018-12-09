@@ -80,6 +80,8 @@
 
             this.name = this.options.name || this.element.attr('name') || this.element.attr('id') || 'trianglePicker';
 
+            this.disabled = this.options.disabled || false;
+            
             setUpPicker(this, this.options);
 
             this.bind();
@@ -136,6 +138,7 @@
         },
         onElementDrag: function (e, moveToIntersect) {
             if (this.mouseIsDown !== true) return;
+            if (this.disabled === true) return;
             e = e || window.event;
             e.preventDefault(); // keeps text from being selected
             // calculate the new cursor position:
