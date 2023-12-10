@@ -69,12 +69,19 @@
 
             // add the element to the widgit
             $.data(this.element, pluginName, this);
-            
-            this.currentValues = null;
+
             this.options = setUpOptions(options, this);
+            
+            this.currentValues = this.options.currentValues || {
+                  bottomRight: 33.33,
+                  topMiddle: 33.33,
+                  bottomLeft: 33.33,
+              };
 
             this.name = this.options.name || this.element.attr('name') || this.element.attr('id') || 'trianglePicker';
 
+            this.disabled = this.options.disabled || false;
+            
             setUpPicker(this, this.options);
 
             this.bind();
@@ -82,7 +89,7 @@
             if (onChange !== undefined)
                 this.bindOnChange(onChange);
 
-            this.moveHandleToCenter();
+            this.moveHandleToCurrentValues();
 
             this.onHandleMove();
 
@@ -98,6 +105,18 @@
 
         /**** Move methods ****/
 
+        moveHandleToCurrentValues: function() {
+            coord = { x: this.pickerPoints().bottomLeft.x * this.currentValues.bottomLeft/100 +
+              this.pickerPoints().topMiddle.x * this.currentValues.topMiddle/100 + 
+              this.pickerPoints().bottomRight.x * this.currentValues.bottomRight/100, 
+                      y: this.pickerPoints().bottomLeft.y * this.currentValues.bottomLeft/100 +
+              this.pickerPoints().topMiddle.y * this.currentValues.topMiddle/100 + 
+              this.pickerPoints().bottomRight.y * this.currentValues.bottomRight/100}; 
+            
+            moveEleToPoint(this.handle, coord, this.handleDimensions());
+            this.positionPercent(true);
+        },
+        
         moveHandleToCenter: function() {
             moveEleToPoint(this.handle, this.pickerPoints().midPoint, this.handleDimensions());
             this.positionPercent(true);
@@ -119,6 +138,7 @@
         },
         onElementDrag: function (e, moveToIntersect) {
             if (this.mouseIsDown !== true) return;
+            if (this.disabled === true) return;
             e = e || window.event;
             e.preventDefault(); // keeps text from being selected
             // calculate the new cursor position:
@@ -202,16 +222,6 @@
         },
 
         /**** End Change Methods ****/
-
-        /**** Get And Set Values ****/
-
-        currentValues: {
-            bottomRight: 33.33,
-            topMiddle: 33.33,
-            bottomLeft: 33.33,
-        },
-
-        /**** End Get And Set Values ****/
 
         /**** Get and set Position/Offest/Dimension Properties ****/
 
